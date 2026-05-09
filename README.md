@@ -1,1 +1,1 @@
-# github-copilot-dev-day
+# Python MCP
