@@ -1,0 +1,63 @@
+services:
+
+  # ── Backend: ASP.NET 10 Minimal API ─────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todo-backend
+    ports:
+      - "${BACKEND_PORT:-5000}:5000"
+    volumes:
+      # Volume nomeado para persistir o banco de dados SQLite entre reinicializações
+      - todo-data:/app/data
+    environment:
+      APP_PORT:       "5000"
+      DB_PATH:        "/app/data/todos.db"
+      JWT_SECRET:     "${JWT_SECRET:-troque-em-producao}"
+      ADMIN_USERNAME: "${ADMIN_USERNAME:-admin}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-admin}"
+      LOG_LEVEL:      "${LOG_LEVEL:-Information}"
+      # Permite requisições vindas do frontend (nginx proxy na mesma origin)
+      CORS_ORIGINS:   "http://localhost:${FRONTEND_PORT:-3000}"
+    # Healthcheck usando wget (disponível na imagem aspnet)
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - todo-net
+    restart: unless-stopped
+
+  # ── Frontend: Vue.js (LTS Node via nvm) + Nginx ───────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # VITE_API_URL = /api → nginx faz proxy para http://backend:5000
+        # O browser chama /api/todos e o nginx encaminha para o backend internamente
+        VITE_API_URL:   "/api"
+        VITE_LOG_LEVEL: "${VITE_LOG_LEVEL:-warn}"
+    container_name: todo-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy   # aguarda o backend estar saudável
+    networks:
+      - todo-net
+    restart: unless-stopped
+
+# ── Rede interna ──────────────────────────────────────────────────────────────
+# Permite que o nginx resolva "backend" pelo service name do Compose
+networks:
+  todo-net:
+    driver: bridge
+
+# ── Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  todo-data:
+    driver: local

@@ -1,0 +1,18 @@
+# Pastas de dependências e build (não devem ir para a imagem)
+node_modules/
+dist/
+
+# Variáveis de ambiente locais
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# Controle de versão
+.git/
+.gitignore
+
+# Documentação local
+README.md
