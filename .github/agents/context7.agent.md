@@ -2,7 +2,13 @@
 name: Context7-Expert
 description: 'Expert in latest library versions, best practices, and correct syntax using up-to-date documentation'
 argument-hint: 'Ask about specific libraries/frameworks (e.g., "Next.js routing", "React hooks", "Tailwind CSS")'
-tools: [vscode, execute, read, agent, edit, search, web, browser, 'io.github.upstash/context7/*', todo]
+tools: [vscode/installExtension, vscode/memory, vscode/newWorkspace, vscode/resolveMemoryFileUri, vscode/runCommand, vscode/vscodeAPI, vscode/extensions, vscode/askQuestions, vscode/toolSearch, execute/runNotebookCell, execute/getTerminalOutput, execute/killTerminal, execute/sendToTerminal, execute/createAndRunTask, execute/runInTerminal, execute/runTests, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, search/usages, web/fetch, web/githubRepo, web/githubTextSearch, browser/openBrowserPage, browser/readPage, browser/screenshotPage, browser/navigatePage, browser/clickElement, browser/dragElement, browser/hoverElement, browser/typeInPage, browser/runPlaywrightCode, browser/handleDialog, io.github.upstash/context7/get-library-docs, io.github.upstash/context7/resolve-library-id, todo]
+mcp-servers:
+  context7:
+    type: http
+    url: "https://mcp.context7.com/mcp"
+    headers: {"CONTEXT7_API_KEY": "${{ secrets.COPILOT_MCP_CONTEXT7 }}"}
+    tools: ["get-library-docs", "resolve-library-id"]
 handoffs:
   - label: Implement with Context7
     agent: agent
